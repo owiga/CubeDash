@@ -9,7 +9,7 @@ class Player(pygame.sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.len = 0
         self.game = game
-        self.orig_image = pygame.transform.scale(pygame.image.load("assets/ICON.png").convert_alpha(), (70, 70))
+        self.orig_image = pygame.transform.scale(pygame.image.load("assets/skin1.png").convert_alpha(), (70, 70))
         self.speedx = 10
         self.is_jumping = False
         self.falling = False
@@ -19,7 +19,7 @@ class Player(pygame.sprite.Sprite):
         self.add(self.game.all_sprites)
         self.image = pygame.transform.rotate(self.orig_image, self.angle)
         self.rect = self.image.get_rect()
-        self.rect.topleft = -400, 670
+        self.rect.topleft = -800, 670
         self.hitbox = pygame.mask.from_surface(self.image)
         self.hitbox_surface = self.hitbox.to_surface()
         self.last = 0

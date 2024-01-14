@@ -6,6 +6,7 @@ from resources.player import Player
 from resources.block import Block
 from resources.camera import Camera
 from windows import menu
+from windows import levels
 
 
 class Game:
@@ -24,15 +25,15 @@ class Game:
         self.player = Player(self)
         self.startpos = [self.player.rect.x, self.player.rect.y]
         self.camera = Camera(self)
-        for i in range(2):
+        for i in range(1):
             Block(self, (i * 70 + 50, 730), "spike", pometla=True)
         for i in range(120):
             Block(self, (i * 70 - 2750, 800), "block")
         for i in range(5):
-            Block(self, (500, i * 70 + 150), "block")
+            Block(self, (500, i * 70 + 550), "block")
 
     def update(self):
-        self.screen.fill("white")
+        self.screen.fill("grey")
         self.player.update_(self.offset_x)
         fps_counter(self.clock, self.screen)
         self.all_sprites.update()
@@ -47,7 +48,9 @@ class Game:
         self.clock.tick(fps)
 
     def run(self):
-        menu.MainMenu().show()
+        status = menu.MainMenu().show()
+        if status == 1:
+            levels.Table().show()
         while True:
             self.check_events()
             self.update()
