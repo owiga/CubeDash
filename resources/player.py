@@ -14,12 +14,11 @@ class Player(pygame.sprite.Sprite):
         self.is_jumping = False
         self.falling = False
         self.counter = 15
-        self.scroll_x = 0
         self.angle = 0
         self.add(self.game.all_sprites)
         self.image = pygame.transform.rotate(self.orig_image, self.angle)
         self.rect = self.image.get_rect()
-        self.rect.topleft = -800, 670
+        self.rect.topleft = 100, 670
         self.hitbox = pygame.mask.from_surface(self.image)
         self.hitbox_surface = self.hitbox.to_surface()
         self.last = 0
@@ -72,7 +71,6 @@ class Player(pygame.sprite.Sprite):
                 self.angle = self.reangle
                 self.image = pygame.transform.rotate(self.orig_image, self.angle)
                 self.rect = self.image.get_rect(center=self.pos)
-
             self.rect.y += 13
         else:
             self.pos = self.rect.center
@@ -99,7 +97,7 @@ class Player(pygame.sprite.Sprite):
                     self.is_jumping = False
                     self.counter = 15
                     self.rect.topleft = self.game.startpos
-                elif block.rect.top <= self.rect.bottom <= block.rect.bottom and self.falling and block.type != 'spike':  # na bloke stoyat'
+                elif block.rect.top <= self.rect.bottom <= block.rect.bottom and self.falling and block.type != 1:  # na bloke stoyat'
                     self.rect.bottom = block.rect.top + 1
                     self.is_jumping = False
                     self.falling = False
@@ -111,11 +109,12 @@ class Player(pygame.sprite.Sprite):
                     self.rect.topleft = self.game.startpos
         else:
             self.falling = True
+        if self.rect.y > 900:
+            self.rect.topleft = self.game.startpos
 
     def update_(self, offset):
         self.collide()
         self.gravity()
-        self.scroll_x = offset
         keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pressed()
         # if keys[pygame.K_d]:
@@ -125,4 +124,4 @@ class Player(pygame.sprite.Sprite):
         if (keys[pygame.K_SPACE] or mouse[0]) and not self.falling:
             self.is_jumping = True
         self.rect.x += self.speedx
-        self.rect.x += self.scroll_x
+        self.rect.x += offset

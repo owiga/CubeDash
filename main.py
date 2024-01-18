@@ -5,6 +5,7 @@ from settings import *
 from resources.player import Player
 from resources.block import Block
 from resources.camera import Camera
+from levels import level
 from windows import menu
 from windows import levels
 
@@ -18,25 +19,23 @@ class Game:
         self.clock = pygame.time.Clock()
         self.offset_x = 0
         self.blocks = pygame.sprite.Group()
-        self.masks = pygame.sprite.Group()
-        self.game()
 
-    def game(self):
+    def game(self, num_level):
         self.player = Player(self)
-        self.startpos = [self.player.rect.x, self.player.rect.y]
+        self.startpos = [100, 670]
         self.camera = Camera(self)
-        for i in range(1):
-            Block(self, (i * 70 + 50, 730), "spike", pometla=True)
-        for i in range(120):
-            Block(self, (i * 70 - 2750, 800), "block")
-        for i in range(5):
-            Block(self, (500, i * 70 + 550), "block")
+        if num_level == 1:
+            map_level = level.level(num_level)
+            self.load_level(map_level)
+        elif num_level == 2:
+            map_level = level.level(num_level)
+            self.load_level(map_level)
+
 
     def update(self):
         self.screen.fill("grey")
         self.player.update_(self.offset_x)
         fps_counter(self.clock, self.screen)
-        self.all_sprites.update()
         self.all_sprites.draw(self.screen)
         self.camera.update()
 
@@ -47,10 +46,31 @@ class Game:
         pygame.display.flip()
         self.clock.tick(fps)
 
+    def load_level(self, level):
+        x, y = 0, 0
+        for row in level:
+            for element in row:
+                if element == "b":
+                    Block(self, (x, y), 2)
+                elif element == "s":
+                    Block(self, (x, y), 1)
+                elif element == "sl":
+                    Block(self, (x, y), 3)
+                x += 70
+            y += 70
+            x = 0
+
     def run(self):
-        status = menu.MainMenu().show()
-        if status == 1:
-            levels.Table().show()
+        while True:
+            status = menu.MainMenu().show()
+            if status == 1:
+                code_feedback = levels.Table().show()
+                if code_feedback == 1:
+                    self.game(1)
+                    break
+                elif code_feedback == 2:
+                    self.game(2)
+                    break
         while True:
             self.check_events()
             self.update()

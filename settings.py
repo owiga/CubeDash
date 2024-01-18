@@ -5,7 +5,7 @@ import pygame
 pygame.init()
 width = 1600
 height = 900
-fps = 60
+fps = 61
 font = pygame.font.SysFont("ArialBlack", 15)
 
 
