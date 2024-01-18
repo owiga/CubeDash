@@ -13,7 +13,7 @@ class MainMenu:
 
     def initialize(self):
         self.buttons = [Button_Sprite(self, width // 2 + 150, height // 2 - 95, lambda: 1, "play_button.png"),
-                        Button_Sprite(self, width // 2 - 245, height // 2 - 95, lambda: 2, "skin_button.png")]
+                        Button_Sprite(self, width // 2 - 245, height // 2 - 95, lambda: 2, "skin_button.png"),]
 
     def update(self):
         self.screen.fill("pink")
@@ -36,6 +36,5 @@ class MainMenu:
             status = self.check_events()
             if not status is None:
                 break
-
             self.update()
         return status

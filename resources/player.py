@@ -15,7 +15,7 @@ class Player(pygame.sprite.Sprite):
         self.falling = False
         self.counter = 15
         self.angle = 0
-        self.add(self.game.all_sprites)
+        self.add(self.game.players)
         self.image = pygame.transform.rotate(self.orig_image, self.angle)
         self.rect = self.image.get_rect()
         self.rect.topleft = 100, 670
@@ -96,7 +96,7 @@ class Player(pygame.sprite.Sprite):
                     self.falling = False
                     self.is_jumping = False
                     self.counter = 15
-                    self.rect.topleft = self.game.startpos
+                    self.died()
                 elif block.rect.top <= self.rect.bottom <= block.rect.bottom and self.falling and block.type != 1:  # na bloke stoyat'
                     self.rect.bottom = block.rect.top + 1
                     self.is_jumping = False
@@ -104,13 +104,19 @@ class Player(pygame.sprite.Sprite):
                     self.last = 0
                     self.counter = 15
                 elif overlapmask.count() > 80:
-                    self.rect.topleft = self.game.startpos
+                    self.died()
                 if block.rect.top <= self.rect.top <= block.rect.bottom:
-                    self.rect.topleft = self.game.startpos
+                    self.died()
         else:
             self.falling = True
         if self.rect.y > 900:
-            self.rect.topleft = self.game.startpos
+            self.died()
+
+    def died(self):
+        self.game.blocks.empty()
+        self.game.load_level(self.game.map_level)
+        self.rect.topleft = self.game.startpos
+
 
     def update_(self, offset):
         self.collide()
@@ -125,3 +131,4 @@ class Player(pygame.sprite.Sprite):
             self.is_jumping = True
         self.rect.x += self.speedx
         self.rect.x += offset
+        print(self.rect.x)

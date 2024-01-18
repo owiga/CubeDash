@@ -26,5 +26,7 @@ class Block(pygame.sprite.Sprite):
 
     def update_(self, offset):
         self.rect.x += offset
+        if self.rect.right < 0:
+            self.kill()
 
 
