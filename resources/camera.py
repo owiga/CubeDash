@@ -14,7 +14,10 @@ class Camera:
             self.offset = (self.game.player.rect.centerx - self.size[0] // 2 + 100) / 1
             self.game.player.rect.centerx -= self.offset
             for x in self.game.blocks.sprites():
-                x.update_(-self.offset)
+                x.update(-self.offset)
+            self.game.bx -= self.offset // 4
+            if self.game.bx < -1900:
+                self.game.bx = -100
             # self.game.startpos[0] -= round(self.offset)
 
         # elif self.game.player.rect.centerx < self.size[0] // 2 - 300:

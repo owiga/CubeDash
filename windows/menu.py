@@ -7,8 +7,10 @@ from resources.button import Button_Sprite
 
 
 class MainMenu:
-    def __init__(self):
+    def __init__(self, game):
         self.screen = pygame.display.set_mode((width, height))
+        self.background = pygame.image.load("assets/fon.png")
+        self.game = game
         self.initialize()
 
     def initialize(self):
@@ -16,7 +18,7 @@ class MainMenu:
                         Button_Sprite(self, width // 2 - 245, height // 2 - 95, lambda: 2, "skin_button.png"),]
 
     def update(self):
-        self.screen.fill("pink")
+        self.screen.blit(self.background, (-100, 0))
         self.mousepos = pygame.mouse.get_pos()
         for x in self.buttons:
             x.show()
@@ -30,6 +32,7 @@ class MainMenu:
                     if but.rect.collidepoint(self.mousepos):
                         return but.func()
         pygame.display.flip()
+        self.game.clock.tick(fps)
 
     def show(self):
         while True:

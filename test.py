@@ -1,4 +1,4 @@
-def ch_angle(angle):
+def chp2angle(angle):
     if angle <= 0:
         if -70 >= angle >= -90:
             if angle <= -180:
@@ -10,4 +10,5 @@ def ch_angle(angle):
             return -90
         return 0
 
-print(ch_angle(-70))
+print(chp2angle(-70))
+p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2;p2
