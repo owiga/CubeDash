@@ -19,15 +19,18 @@ class Button(pygame.Rect):
 
 
 class Button_Sprite(pygame.sprite.Sprite):
-    def __init__(self, game, x, y, func, image, resizemode=1, current=False):
+    def __init__(self, game, x, y, func, image, resizemode=1, current=False, level=1):
         pygame.sprite.Sprite.__init__(self)
         self.x = x
         self.y = y
         self.game = game
         self.func = func
+        self.level = level
         self.current = current
         if resizemode == 1:
             self.image = pygame.transform.scale(pygame.image.load(f"assets/{image}").convert_alpha(), (150, 150))
+        elif resizemode == 2:
+            self.image = pygame.image.load(f"assets/{image}").convert_alpha()
         else:
             self.image = pygame.transform.scale(pygame.image.load(f"assets/{image}").convert_alpha(), (60, 60))
         self.rect = self.image.get_rect()

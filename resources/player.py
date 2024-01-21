@@ -2,6 +2,7 @@ import pygame
 import random
 
 from resources.particles import Particle
+from resources.particle_cube import Particle_Cube
 from settings import *
 
 
@@ -23,6 +24,43 @@ class Player(pygame.sprite.Sprite):
         self.hitbox = pygame.mask.from_surface(self.image)
         self.hitbox_surface = self.hitbox.to_surface()
         self.last = 0
+        self.particle_enable = True
+        self.death_event = pygame.USEREVENT + 6
+        self.died = False
+        self.music_offed = False
+
+    def check_angle(self):
+        result = []
+        sorted_angles = sorted(angles)
+        for i in range(len(sorted_angles) - 1):
+            if sorted_angles[i] < self.angle < sorted_angles[i + 1]:
+                result.append(sorted_angles[i])
+                result.append(sorted_angles[i + 1])
+        temp = 999
+        index = 0
+        result.sort()
+        for i, angle in enumerate(result):
+            # print(abs(angle) - abs(self.angle))
+            if abs(angle) - abs(self.angle) < temp:
+                temp = abs(angle) - abs(self.angle)
+                if 18 > angle - self.angle > 0:
+                    index = i
+                    break
+            # elif abs(angle) - abs(self.angle) > temp:
+            #     temp = abs(angle) - abs(self.angle)
+            #     index = i
+        try:
+            # print("sub1", result[index], f"self.angle: {self.angle}")
+            # print(f"sub: {abs(result[index]) - abs(self.angle)}")
+            if abs(result[index]) - abs(self.angle) < 0:
+                sign = '+'
+            else:
+                sign = '-'
+            # print(result)
+            # print("+=============func^==========================+")
+            return result[index], sign
+        except IndexError:
+            pass
 
     @staticmethod
     def ch_angle(angle):
@@ -48,14 +86,19 @@ class Player(pygame.sprite.Sprite):
 
                 # print("В прыжке", self.angle)
             else:
-                self.angle = self.ch_angle(self.angle)
+                feedback = self.check_angle()
+                try:
+                    if self.angle != feedback[0]:
+                        self.angle = eval(f"{self.angle} {feedback[1]} 6")
+                except TypeError:
+                    pass
                 self.is_jumping = False
                 self.counter = GRAVITY
 
                 # print("В прыжке2", self.angle)
             self.pos = self.rect.center
             if self.angle == -360:
-                self.angle += 354
+                self.angle = 0
             self.image = pygame.transform.rotate(self.orig_image, self.angle)
             self.rect = self.image.get_rect(center=self.pos)
         elif self.falling:
@@ -70,26 +113,35 @@ class Player(pygame.sprite.Sprite):
                 # print("Градус в конце цикла падения -", self.angle)
             else:
                 # print("коснулся", self.angle, self.counter)
-
+                if self.particle_enable:
+                    self.create_particles(self.rect.midbottom)
                 self.pos = self.rect.center
-                self.reangle = self.ch_angle(self.angle)
-                if self.reangle is None:
-                    self.reangle = 0
-                self.angle = self.reangle
+                feedback = self.check_angle()
+                try:
+                    if self.angle != feedback[0]:
+                        self.angle = eval(f"{self.angle} {feedback[1]} 6")
+                except TypeError:
+                    pass
                 self.image = pygame.transform.rotate(self.orig_image, self.angle)
                 self.rect = self.image.get_rect(center=self.pos)
             self.rect.y += 13
 
         else:
-            self.create_particles(self.rect.bottomleft)
+            if self.particle_enable:
+                self.create_particles(self.rect.bottomleft)
             self.pos = self.rect.center
-            self.reangle = self.ch_angle(self.angle)
-            self.angle = self.reangle
+            feedback = self.check_angle()
+            try:
+                if self.angle != feedback[0]:
+                    self.angle = eval(f"{self.angle} {feedback[1]} 6")
+            except TypeError:
+                pass
             if self.angle <= -360:
                 self.angle += 354
             self.image = pygame.transform.rotate(self.orig_image, self.angle)
             self.rect = self.image.get_rect(center=self.pos)
-            self.create_particles(self.rect.bottomleft)
+            if self.particle_enable:
+                self.create_particles(self.rect.bottomleft)
 
     def collide(self):
         blocks_hit_list = pygame.sprite.spritecollide(self, self.game.blocks, False)
@@ -98,28 +150,35 @@ class Player(pygame.sprite.Sprite):
             self.last += 1
         if len(blocks_hit_list) > 0:
             for block in blocks_hit_list:
-                overlapmask = self.hitbox.overlap_mask(block.hitbox, (
-                    block.rect.topleft[0] - self.rect.topleft[0],
-                    block.rect.topleft[1] - self.rect.topleft[1]))
-                if block.rect.bottom > self.rect.top > block.rect.top:
-                    self.falling = False
-                    self.is_jumping = False
-                    self.counter = GRAVITY
-                    self.die()
-                elif block.rect.top - 1 <= self.rect.bottom <= block.rect.bottom and self.falling and block.type not in range(1, 4):  # na bloke stoyat'
-                    self.rect.bottom = block.rect.top + 1
-                    self.is_jumping = False
-                    self.falling = False
-                    self.last = 0
-                    self.counter = GRAVITY
-                elif overlapmask.count() > 70:
-                    self.game.screen.blit(overlapmask.to_surface(), self.rect.topleft)
-                    self.die()
-                if block.rect.top <= self.rect.top <= block.rect.bottom:
-                    self.die()
+                if block.type == 99:
+                    pygame.time.set_timer(self.game.pulse_event, 700)
+                elif block.type == 98:
+                    pygame.time.set_timer(self.game.change_bg_event, 1000)
+                elif block.type == 97:
+                    pygame.time.set_timer(self.game.win_event, 200)
+                else:
+                    overlapmask = self.hitbox.overlap_mask(block.hitbox, (
+                        block.rect.topleft[0] - self.rect.topleft[0],
+                        block.rect.topleft[1] - self.rect.topleft[1]))
+                    if block.rect.bottom > self.rect.top > block.rect.top and overlapmask.count() > 30 and not self.died:
+                        self.falling = False
+                        self.is_jumping = False
+                        self.counter = GRAVITY
+                        self.die()
+                    elif block.rect.top - 1 <= self.rect.bottom <= block.rect.bottom and self.falling and block.type not in range(
+                            1, 7) and not self.died:  # na bloke stoyat'
+                        self.rect.bottom = block.rect.top + 1
+                        self.is_jumping = False
+                        self.falling = False
+                        self.last = 0
+                        self.counter = GRAVITY
+                    elif overlapmask.count() > 291 and not self.died:
+                        self.die()
+                    if block.rect.top <= self.rect.top <= block.rect.bottom and not self.died:
+                        self.die()
         else:
             self.falling = True
-        if self.rect.y > 900:
+        if self.rect.y > 900 and not self.died:
             self.die()
 
     def create_particles(self, position):
@@ -129,13 +188,25 @@ class Player(pygame.sprite.Sprite):
         for _ in range(particle_count):
             Particle(pos2, random.choice(numbers), self.game)
 
-    def die(self):
-        self.game.blocks.empty()
-        self.game.load_level(self.game.map_level)
-        self.game.bx = -100
-        self.game.particles.empty()
-        self.rect.topleft = self.game.startpos
+    def death_particle(self):
+        particle_count = 10
+        pos2 = self.rect.center
+        numbers = range(-12, 12)
+        for _ in range(particle_count):
+            Particle_Cube(pos2, random.choice(numbers), self.game)
 
+    def die(self):
+        pass
+        # self.died = True
+        # pygame.time.set_timer(self.game.pulse_event, 0)
+        # levels_musics.get(self.game.num_level).stop()
+        # death.play()
+        # self.game.players.empty()
+        # self.game.particles.empty()
+        # self.speedx = 0
+        # self.death_particle()
+        # self.particle_enable = False
+        # pygame.time.set_timer(self.death_event, 1250)
 
     def update_(self, offset):
         self.gravity()
