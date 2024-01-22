@@ -19,6 +19,7 @@ class Camera:
             if self.game.bx < -1900:
                 self.game.bx = -100
             self.game.win_coords = (self.game.win_coords[0] - self.offset, self.game.win_coords[1])
+            self.game.attempt.x -= self.offset
             # self.game.startpos[0] -= round(self.offset)
 
         # elif self.game.player.rect.centerx < self.size[0] // 2 - 300:

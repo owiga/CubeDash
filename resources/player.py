@@ -9,6 +9,7 @@ from settings import *
 class Player(pygame.sprite.Sprite):
     def __init__(self, game):
         pygame.sprite.Sprite.__init__(self)
+        self.jumps = 0
         self.len = 0
         self.game = game
         self.orig_image = pygame.transform.scale(pygame.image.load("assets/skin1.png").convert_alpha(), (70, 70))
@@ -20,7 +21,7 @@ class Player(pygame.sprite.Sprite):
         self.add(self.game.players)
         self.image = pygame.transform.rotate(self.orig_image, self.angle)
         self.rect = self.image.get_rect()
-        self.rect.topleft = 100, 670
+        self.rect.topleft = 0, 670
         self.hitbox = pygame.mask.from_surface(self.image)
         self.hitbox_surface = self.hitbox.to_surface()
         self.last = 0
@@ -195,18 +196,22 @@ class Player(pygame.sprite.Sprite):
         for _ in range(particle_count):
             Particle_Cube(pos2, random.choice(numbers), self.game)
 
-    def die(self):
-        pass
-        # self.died = True
-        # pygame.time.set_timer(self.game.pulse_event, 0)
-        # levels_musics.get(self.game.num_level).stop()
-        # death.play()
-        # self.game.players.empty()
-        # self.game.particles.empty()
-        # self.speedx = 0
-        # self.death_particle()
-        # self.particle_enable = False
-        # pygame.time.set_timer(self.death_event, 1250)
+    def die(self, mil_sec_death=1250):
+        self.died = True
+        self.game.attempts += 1
+        self.game.progress_add = 0
+        pygame.time.set_timer(self.game.pulse_event, 0)
+        levels_musics.get(self.game.num_level).stop()
+        death.play()
+        self.game.players.empty()
+        self.game.particles.empty()
+        self.speedx = 0
+        self.death_particle()
+        self.particle_enable = False
+        pygame.time.set_timer(self.death_event, 1250)
+
+    def change_skin(self, skin_id):
+        self.orig_image = pygame.transform.scale(pygame.image.load(skins.get(skin_id)).convert_alpha(), (70, 70))
 
     def update_(self, offset):
         self.gravity()
@@ -215,6 +220,7 @@ class Player(pygame.sprite.Sprite):
         keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pressed()
         if (keys[pygame.K_SPACE] or mouse[0]) and not self.falling:
+            self.jumps += 1
             self.is_jumping = True
         self.rect.x += self.speedx
         self.rect.x += offset

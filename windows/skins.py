@@ -2,7 +2,6 @@ import pygame
 import sys
 
 from settings import *
-from resources.button import Button
 from resources.button import Button_Sprite
 from resources.button import Button_Sprite_skin
 
@@ -16,15 +15,19 @@ class Menu:
         self.initialize()
 
     def initialize(self):
-        self.buttons = [
-            Button_Sprite_skin(self, width // 3 + 140, 400, lambda: 1, "ICON.png", 1, resizemode=2, current=True),
-            Button_Sprite_skin(self, width // 3 + 210, 400, lambda: 2, "skin1.png", 2, resizemode=2),
-            Button_Sprite_skin(self, width // 3 + 280, 400, lambda: 3, "ICON.png", 3, resizemode=2),
-            Button_Sprite_skin(self, width // 3 + 350, 400, lambda: 4, "skin1.png", 4, resizemode=2)]
-        self.others_button = [
-            Button_Sprite_skin(self, 25, 25, lambda: 55, "back.png", 55),
-            Button_Sprite_skin(self, width // 2 - 75, 150, lambda: None, "ICON.png", 99)
-        ]
+        with open("data/current_skin.txt", mode="r") as file:
+            num = int(file.readline())
+            self.buttons = [
+                Button_Sprite_skin(self, width // 3 + 140, 400, lambda: 1, "skin1.png", 1, resizemode=2),
+                Button_Sprite_skin(self, width // 3 + 210, 400, lambda: 2, "skin2.png", 2, resizemode=2),
+                Button_Sprite_skin(self, width // 3 + 280, 400, lambda: 3, "skin3.png", 3, resizemode=2),
+                Button_Sprite_skin(self, width // 3 + 350, 400, lambda: 4, "skin4.png", 4, resizemode=2)]
+            for but in self.buttons:
+                but.check_current(num)
+            self.others_button = [
+                Button_Sprite_skin(self, 25, 25, lambda: 55, "back.png", 55),
+                Button_Sprite_skin(self, width // 2 - 75, 150, lambda: None, skins.get(num)[6:], 99)
+            ]
 
     def update(self):
         self.screen.fill("black")
@@ -56,6 +59,8 @@ class Menu:
             self.update()
             status = self.check_events()
             if status in range(1, 5):
+                with open("data/current_skin.txt", mode="w", encoding="utf8") as file:
+                    file.write(str(status))
                 for but in self.buttons:
                     but.current = False
                     if status == but.numero:

@@ -2,7 +2,6 @@ import pygame
 import sys
 
 from settings import *
-from resources.button import Button
 from resources.button import Button_Sprite
 
 

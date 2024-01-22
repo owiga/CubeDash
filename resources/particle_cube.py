@@ -5,12 +5,12 @@ from settings import *
 
 
 class Particle_Cube(pygame.sprite.Sprite):
-    cube = [pygame.image.load("assets/particle_cube11.png"), pygame.image.load("assets/particle_cube12.png"),
-            pygame.image.load("assets/particle_cube13.png")]
-
     def __init__(self, pos, dx, game):
         pygame.sprite.Sprite.__init__(self)
         self.game = game
+        self.cube = [pygame.image.load(f"assets/particle_cube{str(self.game.current_skin)}1.png"),
+                     pygame.image.load(f"assets/particle_cube{str(self.game.current_skin)}2.png"),
+                     pygame.image.load(f"assets/particle_cube{str(self.game.current_skin)}3.png")]
         self.image = random.choice(self.cube)
         self.rect = self.image.get_rect()
         self.add(self.game.death_particles)
@@ -25,6 +25,7 @@ class Particle_Cube(pygame.sprite.Sprite):
         # гравитация будет одинаковой (значение константы)
         self.gravity = 1
         self.top_player = self.game.player.rect.top
+
 
     def update(self):
         self.rect.x += self.velocity[0]
