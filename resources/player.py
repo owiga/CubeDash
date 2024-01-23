@@ -11,15 +11,18 @@ class Player(pygame.sprite.Sprite):
         self.game = game
         self.counter = GRAVITY
 
+        self.angle = 0
+        self.orig_image = pygame.transform.scale(pygame.image.load("assets/skin1.png").convert_alpha(), (70, 70))
+        self.image = pygame.transform.rotate(self.orig_image, self.angle)
+        self.rect = self.image.get_rect()
+
         self.jumps = 0
         self.len = 0
         self.speedx = 10
         self.pos = (0, 0)
-        self.angle = 0
+
         self.rect.topleft = 0, 670
         self.last = 0
-
-        self.orig_image = pygame.transform.scale(pygame.image.load("assets/skin1.png").convert_alpha(), (70, 70))
 
         self.is_jumping = False
         self.falling = False
@@ -27,8 +30,6 @@ class Player(pygame.sprite.Sprite):
         self.music_offed = False
         self.particle_enable = True
 
-        self.image = pygame.transform.rotate(self.orig_image, self.angle)
-        self.rect = self.image.get_rect()
         self.hitbox = pygame.mask.from_surface(self.image)
 
         self.death_event = pygame.USEREVENT + 6
