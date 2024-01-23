@@ -8,27 +8,31 @@ from settings import *
 class Player(pygame.sprite.Sprite):
     def __init__(self, game):
         pygame.sprite.Sprite.__init__(self)
+        self.game = game
+        self.counter = GRAVITY
+
         self.jumps = 0
         self.len = 0
-        self.game = game
-        self.orig_image = pygame.transform.scale(pygame.image.load("assets/skin1.png").convert_alpha(), (70, 70))
         self.speedx = 10
+        self.pos = (0, 0)
+        self.angle = 0
+        self.rect.topleft = 0, 670
+        self.last = 0
+
+        self.orig_image = pygame.transform.scale(pygame.image.load("assets/skin1.png").convert_alpha(), (70, 70))
+
         self.is_jumping = False
         self.falling = False
-        self.pos = (0, 0)
-        self.counter = GRAVITY
-        self.angle = 0
-        self.add(self.game.players)
-        self.image = pygame.transform.rotate(self.orig_image, self.angle)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = 0, 670
-        self.hitbox = pygame.mask.from_surface(self.image)
-        self.hitbox_surface = self.hitbox.to_surface()
-        self.last = 0
-        self.particle_enable = True
-        self.death_event = pygame.USEREVENT + 6
         self.died = False
         self.music_offed = False
+        self.particle_enable = True
+
+        self.image = pygame.transform.rotate(self.orig_image, self.angle)
+        self.rect = self.image.get_rect()
+        self.hitbox = pygame.mask.from_surface(self.image)
+
+        self.death_event = pygame.USEREVENT + 6
+        self.add(self.game.players)
 
     def check_angle(self):
         result = []
@@ -169,7 +173,7 @@ class Player(pygame.sprite.Sprite):
                         self.die()
                     elif (block.rect.top - 1 <= self.rect.bottom <= block.rect.bottom and self.falling and
                           block.type not in range(
-                            1, 7) and not self.died):  # na bloke stoyat'
+                                1, 7) and not self.died):  # na bloke stoyat'
                         self.rect.bottom = block.rect.top + 1
                         self.is_jumping = False
                         self.falling = False

@@ -1,8 +1,4 @@
-import pygame
-import sys
-
 from settings import *
-from resources.button import Button_Sprite
 from resources.button import Button_Sprite_skin
 
 
@@ -11,10 +7,10 @@ class Menu:
         self.screen = pygame.display.set_mode((width, height))
         self.outline = pygame.image.load("assets/outline.png")
         self.background = pygame.image.load("assets/fon.png")
-        self.game = game
-        self.initialize()
 
-    def initialize(self):
+        self.game = game
+        self.mousepos = (0, 0)
+
         with open("data/current_skin.txt", mode="r") as file:
             num = int(file.readline())
             self.buttons = [
@@ -33,6 +29,7 @@ class Menu:
         self.screen.fill("black")
         self.screen.blit(self.background, (-100, 0))
         self.mousepos = pygame.mouse.get_pos()
+
         for but in self.others_button:
             but.show()
         for x in self.buttons:
@@ -44,6 +41,7 @@ class Menu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for but in self.buttons:
                     if but.rect.collidepoint(self.mousepos):
@@ -51,6 +49,7 @@ class Menu:
                 for but in self.others_button:
                     if but.rect.collidepoint(self.mousepos):
                         return but.func()
+
         pygame.display.flip()
         self.game.clock.tick(fps)
 
@@ -61,10 +60,12 @@ class Menu:
             if status in range(1, 5):
                 with open("data/current_skin.txt", mode="w", encoding="utf8") as file:
                     file.write(str(status))
+
                 for but in self.buttons:
                     but.current = False
                     if status == but.numero:
                         but.current = True
                         self.others_button[1].change_image(but.image_name)
+
             elif status == 55:
                 return 55

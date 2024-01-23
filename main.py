@@ -16,8 +16,6 @@ class Game:
         self.screen = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
 
-        self.progress_add = 0.048
-
         self.offset_x = 0
         self.bx = -100
         self.attempts = 1
@@ -62,6 +60,7 @@ class Game:
         self.startpos = None
         self.current_music = None
         self.current_level = None
+        self.progress_add = None
 
         self.pulse_event = pygame.USEREVENT + 2
         self.change_bg_event = pygame.USEREVENT + 3
@@ -307,7 +306,6 @@ class Game:
             return
         elif name != '_' and name != '':
             Block(self, (x, y), blocks_names.get(name))
-
 
     def restart_level(self):
         self.players.empty()

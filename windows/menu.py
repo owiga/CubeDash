@@ -1,6 +1,3 @@
-import pygame
-import sys
-
 from settings import *
 from resources.button import Button_Sprite
 
@@ -11,12 +8,13 @@ class MainMenu:
         self.background = pygame.image.load("assets/fon.png")
         self.title = pygame.image.load("assets/title.png")
         self.credits = pygame.image.load("assets/info.png")
+
         self.info_show = False
         self.game = game
-        self.x, self.y = 335, 200
-        self.initialize()
 
-    def initialize(self):
+        self.x, self.y = 335, 200
+        self.mousepos = (0, 0)
+
         self.buttons = [
             Button_Sprite(self, width // 2 + 90, height // 2 - 95, lambda: 1, "play_button.png", resizemode=2),
             Button_Sprite(self, width // 2 - 245, height // 2 - 95, lambda: 2, "skin_button.png", resizemode=2),
@@ -39,6 +37,7 @@ class MainMenu:
         self.mousepos = pygame.mouse.get_pos()
         for x in self.buttons:
             x.show()
+
         if self.info_show:
             self.game.screen.blit(self.credits, (300, 0))
             self.print_text()
@@ -47,16 +46,19 @@ class MainMenu:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for but in self.buttons:
                     if but.rect.collidepoint(self.mousepos):
                         return but.func(), but.level
+
         pygame.display.flip()
         self.game.clock.tick(fps)
 
     def show(self):
         with open("data/sound_signals.txt", mode="w") as file:
             file.write("0.2" + " " + "0.2")
+
         while True:
             status = self.check_events()
             try:
@@ -71,6 +73,7 @@ class MainMenu:
                         jumper_music.set_volume(volume[1])
                         theory_of_madness_music.set_volume(volume[1])
                         self.buttons[status[1]].change_image("music.png")
+
                 elif status[0] == 10:
                     if play.get_volume() % 2 != 0:
                         play.set_volume(volume[0])
@@ -82,10 +85,13 @@ class MainMenu:
                         death.set_volume(volume[1])
                         win.set_volume(volume[1])
                         self.buttons[status[1]].change_image("sound.png")
+
                 elif status[0] == 8:
                     self.info_show = not self.info_show
+
                 elif not status[0] is None and status[0] not in range(8, 11):
                     break
+
                 with open("data/sound_signals.txt", mode="w") as file:
                     file.write(
                         str(round(play.get_volume(), 1)) + " " + str(round(main_menu.get_volume(), 1)))

@@ -1,6 +1,3 @@
-import pygame
-import sys
-
 from settings import *
 from resources.button import Button_Sprite
 
@@ -9,13 +6,16 @@ class Table:
     def __init__(self, game):
         self.screen = pygame.display.set_mode((width, height))
         self.background = pygame.image.load("assets/fon.png")
+
         self.move_right = False
         self.move_left = False
-        self.game = game
-        self.initialize()
+        self.butfunc = None
 
-    def initialize(self):
+        self.game = game
+
+        self.mousepos = (0, 0)
         self.load = pygame.USEREVENT + 1
+
         self.buttons = [Button_Sprite(self, 200, 200, lambda: 1, "first.png", resizemode=2),
                         Button_Sprite(self, 1550, 200, lambda: 2, "second.png", resizemode=2),
                         Button_Sprite(self, 25, 25, lambda: 3, "back.png", level=0),
@@ -28,27 +28,33 @@ class Table:
         self.mousepos = pygame.mouse.get_pos()
         for x in self.buttons:
             x.show()
+
         if self.move_right:
             if self.buttons[0].rect.x > -1150:
                 self.buttons[0].x -= 20
                 self.buttons[0].rect.x = self.buttons[0].x
                 self.buttons[1].x -= 20
                 self.buttons[1].rect.x = self.buttons[1].x
+
             elif self.buttons[0].rect.x == -1150:
                 self.move_right = False
+
             elif self.buttons[0].rect.x < -1100:
                 self.buttons[0].x += 2
                 self.buttons[0].rect.x = self.buttons[0].x
                 self.buttons[1].x += 2
                 self.buttons[1].rect.x = self.buttons[1].x
+
         elif self.move_left:
             if self.buttons[0].rect.x < 200:
                 self.buttons[0].x += 20
                 self.buttons[0].rect.x = self.buttons[0].x
                 self.buttons[1].x += 20
                 self.buttons[1].rect.x = self.buttons[1].x
+
             elif self.buttons[0].rect.x == 200:
                 self.move_left = False
+
             elif self.buttons[0].rect.x > 200:
                 self.buttons[0].x -= 2
                 self.buttons[0].rect.x = self.buttons[0].x
@@ -59,6 +65,7 @@ class Table:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for but in self.buttons:
                     if but.rect.collidepoint(self.mousepos):
@@ -70,9 +77,11 @@ class Table:
                             self.butfunc = but.func()
                         else:
                             return but.func()
+
             if event.type == self.load:
                 pygame.time.set_timer(self.load, 0)
                 return self.butfunc
+
         pygame.display.flip()
         self.game.clock.tick(fps)
 
