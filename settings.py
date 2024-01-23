@@ -3,17 +3,19 @@ import sys
 import pygame
 
 pygame.init()
+
 procent = 100
 width = 1600
 height = 900
 fps = 60
 GRAVITY = 15
+
 font = pygame.font.SysFont("ArialBlack", 15)
 font2 = pygame.font.Font("fonts/font2.ttf", 30)
 font3 = pygame.font.Font("fonts/font1.ttf", 150)
 font4 = pygame.font.Font("fonts/font3.ttf", 30)
 
-blocks = {
+blocks_bid = {
     1: "assets/spike.png",
     21: "assets/block.png",
     20: "assets/pol.png",
@@ -28,6 +30,23 @@ blocks = {
     98: "assets/event_line.png",
     97: "assets/event_line.png",
     96: "assets/event_line.png"
+}
+
+blocks_names = {
+    "s": 1,
+    "sl": 2,
+    "ms": 3,
+    "su": 4,
+    "sr": 5,
+    "msu": 6,
+    "pb": 19,
+    "p": 20,
+    "b": 21,
+    "p2": 22,
+    "w2": 96,
+    "w": 97,
+    "bec": 98,
+    "be": 99
 }
 
 skins = {
@@ -46,30 +65,32 @@ image_sounds = {
     '0.0': "sound_offed.png",
     '0.2': "sound.png"
 }
+
 image_musics = {
     '0.0': "music_offed.png",
     '0.2': "music.png"
 }
 
 main_menu = pygame.mixer.Sound("sounds/mainmenu.wav")
-main_menu.set_volume(0.2)
 death = pygame.mixer.Sound("sounds/death.wav")
-death.set_volume(0.2)
 jumper_music = pygame.mixer.Sound("sounds/jumper.wav")
-jumper_music.set_volume(0.2)
 theory_of_madness_music = pygame.mixer.Sound("sounds/theoryofeverything.wav")
+play = pygame.mixer.Sound("sounds/play.wav")
+win = pygame.mixer.Sound("sounds/win.wav")
+
+main_menu.set_volume(0.2)
+death.set_volume(0.2)
+jumper_music.set_volume(0.2)
 theory_of_madness_music.set_volume(0.2)
+play.set_volume(0.2)
+win.set_volume(0.2)
+
 levels_musics = {
     1: theory_of_madness_music,
     2: jumper_music
 }
-play = pygame.mixer.Sound("sounds/play.wav")
-play.set_volume(0.2)
-win = pygame.mixer.Sound("sounds/win.wav")
-win.set_volume(0.2)
 
 angles = [0, -90, -180, -270, -360]
-
 volume = [0, 0.2]
 
 

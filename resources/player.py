@@ -1,4 +1,3 @@
-import pygame
 import random
 
 from resources.particles import Particle
@@ -16,6 +15,7 @@ class Player(pygame.sprite.Sprite):
         self.speedx = 10
         self.is_jumping = False
         self.falling = False
+        self.pos = (0, 0)
         self.counter = GRAVITY
         self.angle = 0
         self.add(self.game.players)
@@ -111,7 +111,7 @@ class Player(pygame.sprite.Sprite):
                     self.angle += 354
                 self.image = pygame.transform.rotate(self.orig_image, self.angle)
                 self.rect = self.image.get_rect(center=self.pos)
-                # print("Градус в конце цикла падения -", self.angle)
+                # print("Градус в конце gцикла падения -", self.angle)
             else:
                 # print("коснулся", self.angle, self.counter)
                 if self.particle_enable:
@@ -161,19 +161,21 @@ class Player(pygame.sprite.Sprite):
                     overlapmask = self.hitbox.overlap_mask(block.hitbox, (
                         block.rect.topleft[0] - self.rect.topleft[0],
                         block.rect.topleft[1] - self.rect.topleft[1]))
-                    if block.rect.bottom > self.rect.top > block.rect.top and overlapmask.count() > 30 and not self.died:
+                    if (block.rect.bottom > self.rect.top > block.rect.top and overlapmask.count() > 30 and
+                            not self.died):
                         self.falling = False
                         self.is_jumping = False
                         self.counter = GRAVITY
                         self.die()
-                    elif block.rect.top - 1 <= self.rect.bottom <= block.rect.bottom and self.falling and block.type not in range(
-                            1, 7) and not self.died:  # na bloke stoyat'
+                    elif (block.rect.top - 1 <= self.rect.bottom <= block.rect.bottom and self.falling and
+                          block.type not in range(
+                            1, 7) and not self.died):  # na bloke stoyat'
                         self.rect.bottom = block.rect.top + 1
                         self.is_jumping = False
                         self.falling = False
                         self.last = 0
                         self.counter = GRAVITY
-                    elif overlapmask.count() > 291 and not self.died:
+                    elif overlapmask.count() > 320 and not self.died:
                         self.die()
                     if block.rect.top <= self.rect.top <= block.rect.bottom and not self.died:
                         self.die()
@@ -208,7 +210,7 @@ class Player(pygame.sprite.Sprite):
         self.speedx = 0
         self.death_particle()
         self.particle_enable = False
-        pygame.time.set_timer(self.death_event, 1250)
+        pygame.time.set_timer(self.death_event, mil_sec_death)
 
     def change_skin(self, skin_id):
         self.orig_image = pygame.transform.scale(pygame.image.load(skins.get(skin_id)).convert_alpha(), (70, 70))

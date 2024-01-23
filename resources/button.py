@@ -1,7 +1,5 @@
 import pygame
 
-from settings import font
-
 
 class Button_Sprite(pygame.sprite.Sprite):
     def __init__(self, game, x, y, func, image, resizemode=1, current=False, level=1):

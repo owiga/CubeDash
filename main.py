@@ -1,13 +1,10 @@
-import sys
-import pygame
-
 from settings import *
 from resources.player import Player
 from resources.button import Button_Sprite_Win, Button_Sprite
 from resources.block import Block
 from resources.camera import Camera
 from resources.win_table import WinTable
-from resources.attempt import Attempt
+from resources.text import Attempt, Name_level
 from levels import level
 from windows import menu
 from windows import skins
@@ -16,19 +13,18 @@ from windows import levels
 
 class Game:
     def __init__(self):
-        self.move_table = False
-        self.pause = False
-        self.startpos = None
-        self.progress_add = 0.048
-        pygame.init()
-        self.checker = False
-        self.win_table_show = False
         self.screen = pygame.display.set_mode((width, height))
         self.clock = pygame.time.Clock()
+
+        self.progress_add = 0.048
+
         self.offset_x = 0
         self.bx = -100
         self.attempts = 1
-        self.pause_image = pygame.image.load("assets/pause.png")
+        self.mousepos = (0, 0)
+        self.progress = 0
+        self.num_level = 1
+        self.counter = 0
 
         self.blocks = pygame.sprite.Group()
         self.players = pygame.sprite.GroupSingle()
@@ -51,40 +47,61 @@ class Game:
         self.player = Player(self)
         self.camera = Camera(self)
         self.win_table = WinTable(self)
+        self.level_name = Name_level(self)
 
-        self.progress = 0
         self.enabled = True
-        self.num_level = 1
-        self.current_music = None
         self.win = False
-        self.counter = 0
+        self.checker = False
+        self.win_table_show = False
+        self.move_table = False
+        self.pause = False
+
+        self.attempt = None
+        self.win_coords = None
+        self.map_level = None
+        self.startpos = None
+        self.current_music = None
+        self.current_level = None
+
         self.pulse_event = pygame.USEREVENT + 2
         self.change_bg_event = pygame.USEREVENT + 3
         self.win_event = pygame.USEREVENT + 4
         self.done_event = pygame.USEREVENT + 5
+
         self.background = pygame.image.load("assets/fon.png")
+        self.background2 = pygame.image.load("assets/fon.png")
         self.start_back = pygame.image.load("assets/fon.png")
+        self.pause_image = pygame.image.load("assets/pause.png")
+
         with open("data/current_skin.txt", mode="r") as file:
             self.current_skin = int(file.readline())
+
         main_menu.play(-1)
 
     def game(self, num_level):
         with open("data/current_skin.txt", mode="r") as file:
-            self.current_skin = int(file.readline())
+            self.player.change_skin(int(file.readline()))
+
         with open("data/sound_signals.txt", mode="r") as file:
             status = file.readline().split()
             self.sound_b.change_image(image_sounds.get(status[0]))
             self.music_b.change_image(image_musics.get(status[1]))
+
         self.attempts = 1
         self.progress = 0
+
         self.checker = False
+        self.pause = False
         self.win = False
+
         self.num_level = num_level
         self.startpos = [0, 670]
         self.player.rect.topleft = self.startpos
+
         main_menu.stop()
-        self.player.change_skin(self.current_skin)
+
         if num_level == 1:
+            self.current_level = "Theory of Madness"
             self.progress_add = progress_adding.get(self.num_level)
             self.map_level = level.level(num_level)
             self.current_music = theory_of_madness_music.play()
@@ -94,6 +111,7 @@ class Game:
             self.start_back = pygame.image.load("assets/fon.png")
 
         elif num_level == 2:
+            self.current_level = "Jumper"
             self.progress_add = progress_adding.get(self.num_level)
             self.map_level = level.level(num_level)
             self.current_music = jumper_music.play()
@@ -103,8 +121,8 @@ class Game:
             self.start_back = pygame.image.load("assets/fon2.png")
 
     def procent(self):
-        procent = str(round(self.progress, 1)) + "%"
-        text = font2.render(procent, 1, pygame.Color("WHITE"))
+        current_procent = str(round(self.progress, 1)) + "%"
+        text = font2.render(current_procent, 1, pygame.Color("WHITE"))
         self.screen.blit(text, (width // 2 - 10, 0))
 
     def update(self):
@@ -123,10 +141,12 @@ class Game:
         self.attempt.update()
 
         self.mousepos = pygame.mouse.get_pos()
+
         if self.background.get_alpha() != 255:
             self.background.set_alpha(self.background.get_alpha() + 5)
             self.background2.set_alpha(self.background.get_alpha() + 5)
-        if not self.pause:
+
+        if not self.pause or not self.checker:
             self.player.update_(self.offset_x)
             if self.player.music_offed:
                 self.current_music = levels_musics.get(self.num_level).play()
@@ -139,7 +159,9 @@ class Game:
                 self.progress_add = 0
         elif self.pause:
             self.current_music.pause()
+
             self.screen.blit(self.pause_image, (300, 50))
+            self.level_name.show()
 
         fps_counter(self.clock, self.screen)
         self.menu.show()
@@ -160,6 +182,12 @@ class Game:
                 self.win = False
                 self.players.empty()
 
+        if self.win_table_show:
+            self.screen.blit(self.win_table.total_jumps_text, (self.win_table.rect.x + 100,
+                                                               self.win_table.rect.y + 340))
+            self.screen.blit(self.win_table.total_attempts_text, (self.win_table.rect.x + 100,
+                                                                  self.win_table.rect.y + 290))
+
     def check_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -168,6 +196,8 @@ class Game:
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE and not self.win_table_show:
                     self.pause = not self.pause
+                    self.checker = not self.checker
+
                     if self.pause:
                         self.restart.rect.topleft = (605, 400)
                         self.menu.rect.topleft = (838, 400)
@@ -192,52 +222,63 @@ class Game:
                 self.background.set_alpha(120)
                 self.background2.set_alpha(120)
                 self.counter += 1
+
                 if self.counter % 2 == 1:
                     self.background = pygame.image.load("assets/fon.png")
                     self.background2 = pygame.image.load("assets/fon.png")
+
                 else:
                     self.background = pygame.image.load("assets/fon2.png")
                     self.background2 = pygame.image.load("assets/fon2.png")
+
                 self.background.set_alpha(120)
                 self.background2.set_alpha(120)
+
                 pygame.time.set_timer(self.change_bg_event, 0)
 
-            elif event.type == self.win_event:
+            elif event.type == self.win_event:  # Когда перешел вин ивент
                 self.progress = 100
+                self.player.speedx = 0
+
                 self.checker = True
                 self.player.particle_enable = False
-                self.particles.empty()
                 self.win = True
-                self.players.empty()
+
+                self.particles.empty()
+                self.player.kill()
                 self.current_music.stop()
-                self.player.speedx = 0
                 win.play()
+
                 pygame.time.set_timer(self.win_event, 0)
                 pygame.time.set_timer(self.done_event, 3000)
 
-            elif event.type == self.done_event:
+            elif event.type == self.done_event:  # Таблица победа
                 self.move_table = True
-                levels_musics.get(self.num_level).set_volume(0.05)
                 pygame.time.set_timer(self.done_event, 0)
 
             if event.type == self.player.death_event:
                 pygame.time.set_timer(self.player.death_event, 0)
-                self.player.add(self.players)
+
                 self.progress = 0
-                self.player.speedx = 10
-                self.blocks.empty()
-                self.load_level(self.map_level)
                 self.bx = -100
+                self.player.speedx = 10
+
+                self.player.add(self.players)
+                self.blocks.empty()
+                self.death_particles.empty()
+
+                self.load_level(self.map_level)
+                self.background2 = self.start_back
+                self.background = self.start_back
                 self.player.rect.topleft = self.startpos
+
                 if not self.checker:
                     levels_musics.get(self.num_level).play()
                 else:
                     self.player.music_offed = True
-                self.death_particles.empty()
+
                 self.player.died = False
                 self.player.particle_enable = True
-                self.background2 = self.start_back
-                self.background = self.start_back
                 self.progress_add = progress_adding.get(self.num_level)
 
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -245,47 +286,28 @@ class Game:
                     if but.rect.collidepoint(self.mousepos):
                         return but.func()
 
-        pygame.display.flip()
+        pygame.display.update()
         self.clock.tick(fps)
 
-    def load_level(self, level):
+    def load_level(self, map_level):
         x, y = 1 - self.camera.offset, 0
-        for row in level:
+
+        for row in map_level:
             for element in row:
-                if element == "b":
-                    Block(self, (x, y), 21)
-                elif element == "s":
-                    Block(self, (x, y), 1)
-                elif element == "sl":
-                    Block(self, (x, y), 2)
-                elif element == "ms":
-                    Block(self, (x, y), 3)
-                elif element == "p":
-                    Block(self, (x, y), 20)
-                elif element == "p2":
-                    Block(self, (x, y), 22)
-                elif element == "pb":
-                    Block(self, (x, y), 19)
-                elif element == "su":
-                    Block(self, (x, y), 4)
-                elif element == "sr":
-                    Block(self, (x, y), 5)
-                elif element == "msu":
-                    Block(self, (x, y), 6)
-                elif element == "be":
-                    Block(self, (x, y), 99)
-                elif element == "bec":
-                    Block(self, (x, y), 98)
-                elif element == "w":
-                    Block(self, (x, y), 97)
-                elif element == "w2":
-                    Block(self, (x, y), 96)
-                    self.win_coords = (x, y)
-                elif element == "t":
-                    self.attempt = Attempt(self, x, y)
+                self.block_build(element, x, y)
                 x += 70
             y += 70
             x = 0
+
+    def block_build(self, name, x, y):
+        if name == "w2":
+            self.win_coords = (x, y)
+        elif name == "t":
+            self.attempt = Attempt(self, x, y)
+            return
+        elif name != '_' and name != '':
+            Block(self, (x, y), blocks_names.get(name))
+
 
     def restart_level(self):
         self.players.empty()
@@ -295,6 +317,7 @@ class Game:
 
         self.player.add(self.players)
         self.player.speedx = 10
+        self.player.jumps = 0
 
         pygame.time.set_timer(self.pulse_event, 0)
 

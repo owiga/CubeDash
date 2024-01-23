@@ -1,11 +1,10 @@
-import pygame
 import random
 
 from settings import *
 
 
 class Particle(pygame.sprite.Sprite):
-    
+
     def __init__(self, pos, dx, game):
         pygame.sprite.Sprite.__init__(self)
         self.game = game
@@ -30,7 +29,8 @@ class Particle(pygame.sprite.Sprite):
         self.rect.x += self.velocity[0]
         self.rect.y += self.velocity[1]
         self.size *= 0.9
-        self.image = pygame.transform.scale(pygame.image.load("assets/particle.png").convert_alpha(), (self.size, self.size))
+        self.image = pygame.transform.scale(pygame.image.load("assets/particle.png").convert_alpha(),
+                                            (self.size, self.size))
         self.image.set_alpha(195 - (self.game.player.rect.left - self.rect.x))
         if self.rect.x < self.game.player.rect.left - 300:
             self.kill()

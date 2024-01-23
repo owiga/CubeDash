@@ -1,4 +1,3 @@
-import pygame
 import random
 
 from settings import *
@@ -25,7 +24,6 @@ class Particle_Cube(pygame.sprite.Sprite):
         # гравитация будет одинаковой (значение константы)
         self.gravity = 1
         self.top_player = self.game.player.rect.top
-
 
     def update(self):
         self.rect.x += self.velocity[0]
